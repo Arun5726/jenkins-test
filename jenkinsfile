@@ -1,0 +1,58 @@
+pipeline {
+    agent any
+    environment{
+        name= 'arun'
+    }
+    parameters{
+        string(name: 'person', defaultValue: 'Arun Kumar', description: 'Who are you?')
+        choice(name: 'City', choices: ['Delhi', 'Jaipur', 'Mumbai'])
+    }
+
+    stages {
+        stage('Run a command') {
+            steps {
+                sh '''
+                pwd
+                date +"%Y-%m"
+                '''
+            }
+        }
+        stage('environment_variables') {
+            environment{
+                username= 'myusername'
+            }
+            steps {
+                sh 'echo "${BUILD_ID}" '
+                sh 'echo "${name}" '
+                sh 'echo "${username}" '
+            }
+        }
+        stage('parameters') {
+            steps {
+                echo 'deploying in parameter environment'
+                sh 'echo "${person}" '
+                sh 'echo "${isMale}" '
+                sh 'echo "${City}" '
+            }
+        }
+        stage('continue?') {
+            input{
+                message "do you wish to continue?"
+                ok "Go ahead"
+            }
+            steps {
+                echo 'deploying in prod environment'
+            }
+        }
+        stage('deploy-prod') {
+            steps {
+                echo1 'deploying in prod environment'
+            }
+        }
+    }
+    post{
+        always{
+            echo "I will always be run even if any stage fails"
+        }
+    }
+}
